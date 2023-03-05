@@ -1,3 +1,4 @@
+const { validationResult } = require("express-validator")
 const User = require('../../model/user')
 const { sendToken } = require('../../helpers/auth/tokenHelper')
 const { comparePassword } = require('../../helpers/inputHelper')
@@ -18,56 +19,50 @@ const getPrivateData = async (req, res, next) => {
 }
 
 const register = async (req, res, next) => {
-  const { username, email, password } = req.body
+  const { email, password } = req.body
 
   try {
+
     // finding the user if not find then user will be null
-    const user = await User.findOne({ username }).exec()
-
-    const userEmail = await User.findOne({ email }).exec()
-
-    if (user) {
-      return res.status(202).json({ message: 'User  already exists ' })
-    } else if (userEmail) {
-      return res.status(202).json({
-        message: 'Email alrea exists ',
-      })
-    } else {
-      const newUser = await new User({
-        username,
-        email,
-        password,
-      })
-
-      await newUser.save()
-
-      sendToken(newUser, 201, res)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-    // res.status(400).json({
-    //   success: false,
-    //   message: `email: ${userEmail?.email} is already used `
-    // })
+    const newUser = await new User({
+      email,
+      password,
+    })
+
+    await newUser.save()
+
+    sendToken(newUser, 201, res)
+
   } catch (err) {
-    console.log(`server error in register ${err}`)
-    res.status(500).json({ message: 'Server error ' })
+    console.log(`server error in register //${err}//`)
+    res.status(500).json({ message: 'Server error ', error: err })
   }
 }
 
 const login = async (req, res, next) => {
   const { email, password } = req.body
   const user = await User.findOne({ email }).select('+password')
-  try{
-    console.log("in login " + user)
-  if (!user) {
-    return res.status(202).json({ message: 'No user found  ' , success:false})
-  } else if (!comparePassword(password, user.password)) {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    console.log("in login user= " + user)
+    if (!user) {
+      return res.status(401).json({ message: 'No user found  ', success: false })
+    } else if (!comparePassword(password, user.password)) {
       console.log("password not matched in login")
-    return res.status(202).json({ message: "User password doesn't match",success:false })
-  }
-  return sendToken(user, 201, res)
-  }catch(err){
+      return res.status(401).json({ message: "User password doesn't match", success: false })
+    }
+    return sendToken(user, 201, res)
+  } catch (err) {
     console.log(`error in login ${err}`)
-    res.status(500).json({message:"Server error"})
+    res.status(500).json({ message: "Server error", error: err })
   }
 }
 
@@ -135,7 +130,7 @@ const resetPassword = async (req, res) => {
     user.password = newPassword
     user.resetPasswordToken = undefined
     user.resetPassWordExpire = undefined
-    
+
     await user.save()
     console.log(user)
     return res.status(201).json({

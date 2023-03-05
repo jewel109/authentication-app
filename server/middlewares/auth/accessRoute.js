@@ -11,8 +11,8 @@ const getAccessToRoute = asyncError(async (req, res, next) => {
   const { JWT_SECRET } = process.env
 
   if (!isTokenIncluded(req)) {
-    return res.status(201).json({
-      success:false,
+    return res.status(401).json({
+      success: false,
       message: 'No token found',
     })
   }
@@ -33,7 +33,7 @@ const getAccessToRoute = asyncError(async (req, res, next) => {
     if (!user) {
       console.log('no user')
       return res.status(201).json({
-        success:false,
+        success: false,
         message: 'No user found',
       })
     }

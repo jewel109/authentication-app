@@ -1,13 +1,47 @@
-import react from 'react'
+import react, { useEffect, useState } from 'react'
+import instance from '../../services/axios'
+import axiosError from '../../services/errorHandler/axiosError'
+
 
 export default function Login() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+
+  let errorMesage = "";
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    instance.post('/auth/login', {
+      email, password
+    }).then(response => console.log(response.data))
+      .catch(err => {
+        axiosError(err)
+
+        errorMesage = err.response.data.errors
+      })
+    if (errorMesage) {
+      errorMesage.map(
+        er => {
+
+          setError(`${er.param} is incorrect `)
+        })
+    } else {
+      setError("")
+    }
+
+  }
   return (
-    <form>
-      <label>email </label>
-      <input type="text" />
-      <label> password </label>
-      <input type="password" />
-      <button type="submit">login</button>
-    </form>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <label>email </label>
+        <input type="text" onChange={(e) => setEmail(e.target.value)} value={email} />
+        <label> password </label>
+        <input type="password" onChange={(e) =>
+          setPassword(e.target.value)} value={password} />
+        <button type="submit">login</button>
+      </form>
+      {error && <p>{error}</p>}
+    </div>
   )
 }

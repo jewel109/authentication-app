@@ -7,7 +7,7 @@ const expireDate = "1h";
 
 const UserSchema = new mongoose.Schema(
   {
-    username: { type: String, required: true, unique: true },
+    username: { type: String },
     password: { type: String },
     createdAt: { type: Date, default: Date.now },
     email: {
@@ -56,13 +56,12 @@ UserSchema.pre("save", async function(next) {
 });
 
 UserSchema.methods.generateJwtFromUser = function() {
-  const {JWT_SECRET}  = process.env  
+  const { JWT_SECRET } = process.env
   const payload = {
     id: this._id,
-    name: this.username,
     email: this.email,
   };
-  const token = jwt.sign(payload, JWT_SECRET,{expiresIn:'30d'});
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '30d' });
   return token;
 };
 
