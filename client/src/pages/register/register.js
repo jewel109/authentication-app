@@ -1,34 +1,16 @@
 import react, { useEffect, useState } from 'react'
-import instance from '../../services/axios'
-import axiosError from '../../services/errorHandler/axiosError'
+import { useSignUp } from '../../hooks/useSignUp'
 
 
 export default function Register() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const { signUp, error } = useSignUp()
 
-  let errorMesage = "";
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    instance.post('/auth/register', {
-      email, password
-    }).then(response => console.log(response.data.token))
-      .catch(err => {
-        axiosError(err)
+    await signUp(email, password)
 
-        errorMesage = err.response.data.errors
-      })
-    if (errorMesage) {
-      errorMesage.map(
-        er => {
-
-          setError(`${er.param} is incorrect `)
-        })
-    } else {
-      setError("")
-    }
 
   }
   return (

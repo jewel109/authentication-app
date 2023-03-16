@@ -16,6 +16,9 @@ export default function Header() {
       <span>
         <Link to='/reset-password' >reset-password</Link>
       </span>
+      <span>
+        <Link to='/private' >private</Link>
+      </span>
     </div>
   )
 }

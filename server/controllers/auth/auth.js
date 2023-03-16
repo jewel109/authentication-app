@@ -1,4 +1,4 @@
-const { validationResult } = require("express-validator")
+const validator = require("validator")
 const User = require('../../model/user')
 const { sendToken } = require('../../helpers/auth/tokenHelper')
 const { comparePassword } = require('../../helpers/inputHelper')
@@ -14,7 +14,8 @@ const getPrivateData = async (req, res, next) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(202).json({ message: 'eroor in privateData' })
+    res.status(500).json({ message: 'Server error ', error: `${error}` })
+
   }
 }
 
@@ -22,11 +23,20 @@ const register = async (req, res, next) => {
   const { email, password } = req.body
 
   try {
+    if (!email || !password) {
+      throw Error("please fill all field")
+    }
+    if (!validator.isEmail(email)) {
+      throw Error("Email is not correct")
+    }
 
-    // finding the user if not find then user will be null
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    const user = await User.findOne({ email })
+    if (user) {
+      throw Error("This email is already registered")
+    }
+
+    if (password.length < 4) {
+      throw Error("make sure password lenght is not less than 4")
     }
     const newUser = await new User({
       email,
@@ -35,34 +45,43 @@ const register = async (req, res, next) => {
 
     await newUser.save()
 
-    sendToken(newUser, 201, res)
+    sendToken(newUser, 201, res, "registered successfully")
 
   } catch (err) {
     console.log(`server error in register //${err}//`)
-    res.status(500).json({ message: 'Server error ', error: err })
+    res.status(500).json({ message: 'Server error ', error: `${err}` })
   }
 }
 
 const login = async (req, res, next) => {
   const { email, password } = req.body
-  const user = await User.findOne({ email }).select('+password')
+
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    if (!email || !password) {
+      throw Error("please fill all field")
     }
 
-    console.log("in login user= " + user)
+    if (!validator.isEmail(email)) {
+      throw Error("Email is not correct")
+    }
+
+    const user = await User.findOne({ email }).select('+password')
+
+    if (password.length < 4) {
+      throw Error("make sure password lenght is not less than 4")
+    }
     if (!user) {
       return res.status(401).json({ message: 'No user found  ', success: false })
+
     } else if (!comparePassword(password, user.password)) {
-      console.log("password not matched in login")
       return res.status(401).json({ message: "User password doesn't match", success: false })
     }
-    return sendToken(user, 201, res)
+
+    return sendToken(user, 201, res, "logged in successfully")
+
   } catch (err) {
     console.log(`error in login ${err}`)
-    res.status(500).json({ message: "Server error", error: err })
+    res.status(500).json({ message: "Server error", error: `${err}` })
   }
 }
 
@@ -72,23 +91,26 @@ const forgetPassword = async (req, res, next) => {
   const resetEmail = req.body.email
   console.log(resetEmail)
 
-  const user = await User.findOne({ email: resetEmail }).exec()
+  try {
+    if (!resetEmail) {
+      throw Error("Please give an email")
+    }
+    const user = await User.findOne({ email: resetEmail }).exec()
 
-  if (!user) {
-    return res.status(500).json({ message: 'No user found' })
-  }
+    if (!user) {
+      throw Error("No user found with this email")
+    }
 
-  const resetPasswordToken = await user.getResetPasswordFromUser()
+    const resetPasswordToken = await user.getResetPasswordFromUser()
 
-  await user.save()
+    await user.save()
 
-  const requestPasswordURI = `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`
+    const requestPasswordURI = `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`
 
-  const emailTemplate = `
+    const emailTemplate = `
   <h3 style="color: red" > Reset your password </h3>
   <p>This <a href=${requestPasswordURI} target="_blank">link </a>will expire in 1 hours</P>
 `
-  try {
     await sendMailWithSIB(resetEmail, emailTemplate)
 
     return res.status(200).json({
@@ -96,7 +118,11 @@ const forgetPassword = async (req, res, next) => {
       message: 'Email send',
     })
   } catch (error) {
-    console.log(error)
+    console.log(`Server Error = ${error}`)
+    res.status(500).json({
+      message: 'Server error',
+      error: `${error}`
+    })
   }
 }
 

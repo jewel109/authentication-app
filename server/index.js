@@ -9,14 +9,14 @@ const logger = require('./helpers/logger/logger')
 //logger('we are in ', 'index.js')
 
 dotenv.config({
-  path:".config/config.env"
+  path: ".config/config.env"
 })
 
 
 db()
 app.use(express.json())
 app.use(cors({
-  origin:"*"
+  origin: "*"
 }))
 // app.use("/",indexRoute)
 // app.use((req,res,next) => {
@@ -33,11 +33,9 @@ app.use(cors({
 app.use('/', indexRoute)
 //main route
 
-app.use((err,req,res,next) => {
- console.error(`in index.js ${err.stack}`)
-  // res.status(500).json({
-  //   error:"error"
-  // })
+app.use((err, req, res, next) => {
+  console.error(`in index.js = ${err.stack}`)
+  next(err)
 })
 
 
