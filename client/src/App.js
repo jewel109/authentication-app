@@ -11,11 +11,8 @@ function App() {
       <Header />
       <hr />
       <Routes>
-        <Route path='/home' element={<p>home</p>} />
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
-        <Route path='/reset-password' element={<ResetPassword />} />
-        <Route path='/private' element={<PrivatePage />} />
       </Routes>
     </div >
   );
