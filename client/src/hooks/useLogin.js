@@ -10,22 +10,22 @@ export const useLogin = () => {
   const [error, setError] = useState(null)
   const { dispatch } = useAuthContext()
 
-  let message;
   const login = async (email, password) => {
+    let loginErr;
     setError(null)
     try {
 
-      const data = await instance.post('/auth/login', { email, password })
-      message = data.data.msg ? data.data.msg : "loading"
-      localStorage.setItem("authToken", data.data.token)
+      const { data } = await instance.post('/auth/login', { email, password })
+      localStorage.setItem("authToken", data.token)
       const user = await privateData()
       dispatch({ type: actions.LOG_IN, payload: user })
-      return { message, user }
+      loginErr = null
     } catch (error) {
       const err = axiosError(error)
       setError(err.error)
+      loginErr = err.error
     }
-
+    return loginErr
   }
   return { login, error }
 }

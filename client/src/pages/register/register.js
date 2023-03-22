@@ -1,4 +1,5 @@
 import react, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useSignUp } from '../../hooks/useSignUp'
 
 
@@ -6,11 +7,15 @@ export default function Register() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const { signUp, error } = useSignUp()
-
+  const navigate = useNavigate()
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await signUp(email, password)
 
+    const err = await signUp(email, password)
+
+    if (err == null) {
+      navigate('/profile')
+    }
 
   }
   return (

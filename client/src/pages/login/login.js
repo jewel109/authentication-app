@@ -10,9 +10,10 @@ export default function Login() {
   const navigate = useNavigate()
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password)
-
-    navigate('/profile')
+    const err = await login(email, password)
+    if (err == null) {
+      navigate("/profile")
+    }
   }
   return (
     <div>
