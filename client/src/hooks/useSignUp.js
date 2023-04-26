@@ -9,11 +9,11 @@ export const useSignUp = () => {
   const [error, setError] = useState(null)
   const { dispatch } = useAuthContext()
 
-  const signUp = async (email, password) => {
+  const signUp = async (username,email, password) => {
     let signUpErr;
     setError(null)
     try {
-      const { data } = await instance.post('/auth/register', { email, password })
+      const { data } = await instance.post('/auth/register', { username,email, password })
       console.log(data)
       localStorage.setItem("authToken", data.token)
       const user = await privateData()
