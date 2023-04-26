@@ -20,7 +20,7 @@ const getPrivateData = async (req, res, next) => {
 }
 
 const register = async (req, res, next) => {
-  const { email, password } = req.body
+  const { username,email, password } = req.body
 
   try {
     if (!email || !password) {
@@ -39,6 +39,7 @@ const register = async (req, res, next) => {
       throw Error("make sure password lenght is not less than 4")
     }
     const newUser = await new User({
+      username,
       email,
       password,
     })
