@@ -1,20 +1,17 @@
 import react, { useEffect, useState } from 'react'
-import { useLogin } from '../../hooks/useLogin'
+import { useLogin } from '../../hooks/useLogin.js'
 
 
 export default function Login() {
   const [email, setEmail] = useState("")
-  const [message, setMessage] = useState("")
   const [password, setPassword] = useState("")
   const { login, error } = useLogin()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    await login(email, password)
 
-    const msg = await login(email, password)
-    setMessage(msg)
-    setEmail("")
-    setPassword("")
+
   }
   return (
     <div>
@@ -26,7 +23,6 @@ export default function Login() {
           setPassword(e.target.value)} value={password} />
         <button type="submit">login</button>
       </form>
-      <p>{message}</p>
       {error && <p>{error}</p>}
     </div>
   )

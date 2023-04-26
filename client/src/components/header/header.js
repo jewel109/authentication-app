@@ -1,24 +1,29 @@
-import react from 'react'
+import react, { useContext } from 'react'
 import { Link } from "react-router-dom"
+import { AuthContext } from '../../context/authContext'
 import './header.css'
+
 export default function Header() {
+  const { user } = useContext(AuthContext)
+  console.log(user)
   return (
-    <div>
-      <span>
-        <Link to='/home'>Home</Link>
-      </span>
-      <span>
-        <Link to="/login">login</Link>
-      </span>
-      <span>
-        <Link to='/register'>register</Link>
-      </span>
-      <span>
-        <Link to='/reset-password' >reset-password</Link>
-      </span>
-      <span>
-        <Link to='/private' >private</Link>
-      </span>
+    <div className=' flex justify-between'>
+      <ul className=''>
+        <li>
+          <Link to="/profile">profile</Link>
+        </li>
+      </ul>
+      <ul className='flex justify-evenly'>
+        {user && (<li>
+          <Link to="/logout">logout</Link>
+        </li>)}
+        {!user && (<><li>
+          <Link to="/login">login</Link>
+        </li>
+          <li className='ml-1'>
+            <Link to='/register'>register</Link>
+          </li></>)}
+      </ul>
     </div>
   )
 }
