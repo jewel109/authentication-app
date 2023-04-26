@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from "react";
 import { actions, AuthContext } from "../../context/authContext";
 import { useAuthContext } from "../../hooks/useAuthcontext";
-
+// TODO: make fully chakra based
 
 export default function Logout() {
 

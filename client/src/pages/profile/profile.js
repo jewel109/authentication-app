@@ -5,7 +5,7 @@ import { AuthContext } from "../../context/authContext";
 
 export default function Profile() {
   const { user } = useContext(AuthContext)
-
+  // TODO:make fully chakra based
   return (
     <>
       {user && <p> {user.email}</p>}
