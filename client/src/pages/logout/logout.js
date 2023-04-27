@@ -8,7 +8,7 @@ export default function Logout() {
   const { dispatch } = useAuthContext()
 
   useEffect(() => {
-    // localStorage.removeItem("authToken")
+    localStorage.removeItem("authToken")
     dispatch({ type: actions.LOG_OUT })
   }, [])
   return (
