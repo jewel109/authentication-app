@@ -42,7 +42,6 @@ export default function Register() {
       }}
       validationSchema={SignupSchema}
       onSubmit={async (values, actions) => {
-        // new Promise((r) => setTimeout(r, 500));
         const err = await signUp(values.name, values.email, values.password);
 
         if (err == null) {
@@ -92,7 +91,7 @@ export default function Register() {
             isLoading={props.isSubmitting}
             type="submit"
           >
-            Submit
+            Register
           </Button>
           {err
             ? (
