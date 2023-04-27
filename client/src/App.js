@@ -3,11 +3,11 @@ import { Link, Route, Routes } from "react-router-dom"
 import Header from './components/header/header';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
-import ResetPassword from './pages/reset-password/reset-password';
 import PrivatePage from './pages/private/privatePage';
 import Profile from './pages/profile/profile';
 import Logout from './pages/logout/logout';
 import { Container } from '@chakra-ui/react';
+import ForgetPassword from './pages/forgetPassword/forgetPassword';
 function App() {
   return (
     <div className="app">
@@ -21,6 +21,7 @@ function App() {
         <Route path='/register' element={<Register />} />
         <Route path='/profile' element={<Profile />} />
         <Route path='/logout' element={<Logout />} />
+        <Route path='/forgetPassword' element={<ForgetPassword/>} />
       </Routes>
       </Container>
     </div >

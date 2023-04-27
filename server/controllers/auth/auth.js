@@ -1,173 +1,165 @@
-const validator = require("validator")
-const User = require('../../model/user')
-const { sendToken } = require('../../helpers/auth/tokenHelper')
-const { comparePassword } = require('../../helpers/inputHelper')
-const CustomError = require('../../middlewares/Error/CustomError')
-const sendMailWithSIB = require('../../helpers/libraries/sendMailWithSIB.js')
+const validator = require("validator");
+const User = require("../../model/user");
+const { sendToken } = require("../../helpers/auth/tokenHelper");
+const { comparePassword } = require("../../helpers/inputHelper");
+const CustomError = require("../../middlewares/Error/CustomError");
+const sendMailWithSIB = require("../../helpers/libraries/sendMailWithSIB.js");
 
 const getPrivateData = async (req, res, next) => {
   try {
     return await res.status(200).json({
       success: true,
-      message: 'You got access to the private data in this route ',
+      message: "You got access to the private data in this route ",
       user: req.user,
-    })
+    });
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: 'Server error ', error: `${error}` })
-
+    console.log(error);
+    res.status(500).json({ message: "Server error ", error: `${error}` });
   }
-}
+};
 
 const register = async (req, res, next) => {
-  const { username,email, password } = req.body
+  const { username, email, password } = req.body;
 
   try {
     if (!email || !password) {
-      throw Error("please fill all field")
+      throw Error("please fill all field");
     }
     if (!validator.isEmail(email)) {
-      throw Error("Email is not correct")
+      throw Error("Email is not correct");
     }
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email });
     if (user) {
-      throw Error("This email is already registered")
+      throw Error("This email is already registered");
     }
 
     if (password.length < 4) {
-      throw Error("make sure password lenght is not less than 4")
+      throw Error("make sure password lenght is not less than 4");
     }
     const newUser = await new User({
       username,
       email,
       password,
-    })
+    });
 
-    await newUser.save()
+    await newUser.save();
 
-    sendToken(newUser, 201, res, "registered successfully")
-
+    sendToken(newUser, 201, res, "registered successfully");
   } catch (err) {
-    console.log(`server error in register //${err}//`)
-    res.status(500).json({ message: 'Server error ', error: `${err}` })
+    console.log(`server error in register //${err}//`);
+    res.status(500).json({ message: "Server error ", error: `${err}` });
   }
-}
+};
 
 const login = async (req, res, next) => {
-  const { email, password } = req.body
+  const { email, password } = req.body;
 
   try {
     if (!email || !password) {
-      throw Error("please fill all field")
+      throw Error("please fill all field");
     }
 
     if (!validator.isEmail(email)) {
-      throw Error("Email is not correct")
+      throw Error("Email is not correct");
     }
 
-    const user = await User.findOne({ email }).select('+password')
+    const user = await User.findOne({ email }).select("+password");
 
     if (password.length < 4) {
-      throw Error("make sure password lenght is not less than 4")
+      throw Error("make sure password lenght is not less than 4");
     }
     if (!user) {
-      throw Error('No user found')
-
+      throw Error("No user found");
     } else if (!comparePassword(password, user.password)) {
-      throw Error("User password doesn't match"  )
+      throw Error("User password doesn't match");
     }
 
-    return sendToken(user, 201, res, "logged in successfully")
-
+    return sendToken(user, 201, res, "logged in successfully");
   } catch (err) {
-    console.log(`error in login ${err}`)
-    res.status(500).json({ message: "Server error", error: `${err}` })
+    console.log(`error in login ${err}`);
+    res.status(500).json({ message: "Server error", error: `${err}` });
   }
-}
+};
 
 const forgetPassword = async (req, res, next) => {
-  const { URI_CLIENT, EMAIL_USERNAME } = process.env
+  const { URI_CLIENT, EMAIL_USERNAME } = process.env;
 
-  const resetEmail = req.body.email
-  console.log(resetEmail)
+  const resetEmail = req.body.email;
+  console.log(resetEmail);
 
   try {
     if (!resetEmail) {
-      throw Error("Please give an email")
+      throw Error("Please give an email");
     }
-    const user = await User.findOne({ email: resetEmail }).exec()
+    const user = await User.findOne({ email: resetEmail }).exec();
 
     if (!user) {
-      throw Error("No user found with this email")
+      throw Error("No user found with this email");
     }
 
-    const resetPasswordToken = await user.getResetPasswordFromUser()
+    const resetPasswordToken = await user.getResetPasswordFromUser();
 
-    await user.save()
+    await user.save();
 
-    const requestPasswordURI = `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`
+    const requestPasswordURI =
+      `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`;
 
     const emailTemplate = `
   <h3 style="color: red" > Reset your password </h3>
   <p>This <a href=${requestPasswordURI} target="_blank">link </a>will expire in 1 hours</P>
-`
-    await sendMailWithSIB(resetEmail, emailTemplate)
+`;
+    await sendMailWithSIB(resetEmail, emailTemplate);
 
     return res.status(200).json({
       success: true,
-      message: 'Email send',
-    })
+      message: "Email send",
+    });
   } catch (error) {
-    console.log(`Server Error = ${error}`)
+    console.log(`Server Error = ${error}`);
     res.status(500).json({
-      message: 'Server error',
-      error: `${error}`
-    })
+      message: "Server error",
+      error: `${error}`,
+    });
   }
-}
+};
 
 const resetPassword = async (req, res) => {
   try {
-    const newPassword = req.body.password
-    console.log(`new password in resetpassword newPassword=${newPassword}`)
-    const { resetPasswordToken } = req.query
+    const newPassword = req.body.password;
+    console.log(`new password in resetpassword newPassword=${newPassword}`);
+    const { resetPasswordToken } = req.query;
 
-    console.log(`in resetpassword  resetpassword=${resetPasswordToken}`)
+    console.log(`in resetpassword  resetpassword=${resetPasswordToken}`);
 
     if (!resetPasswordToken) {
-      res.status(202).json({
-        success: false,
-        message: 'There is no token for reset the password',
-      })
+      throw Error("There is no token for reset the password");
     }
 
     const user = await User.findOne({
       resetPasswordToken: resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() },
-    })
+    });
 
     if (!user) {
-      return res.status(202).json({
-        success: false,
-        message: 'May be token is expired!',
-      })
+      throw Error("May be token is expired");
     }
 
-    user.password = newPassword
-    user.resetPasswordToken = undefined
-    user.resetPassWordExpire = undefined
+    user.password = newPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPassWordExpire = undefined;
 
-    await user.save()
-    console.log(user)
+    await user.save();
+    console.log(user);
     return res.status(201).json({
       success: true,
-      message: 'Reset password is successfull',
-    })
+      message: "Reset password is successfull",
+    });
   } catch (err) {
-    console.log(err)
+    console.log(err);
+    res.status(500).json({ message: "Server error", error: `${err}` });
   }
-}
+};
 
 module.exports = {
   register,
@@ -175,4 +167,4 @@ module.exports = {
   forgetPassword,
   resetPassword,
   getPrivateData,
-}
+};
