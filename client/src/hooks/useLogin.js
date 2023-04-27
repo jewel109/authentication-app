@@ -17,15 +17,17 @@ export const useLogin = () => {
 
       const { data } = await instance.post('/auth/login', { email, password })
       localStorage.setItem("authToken", data.token)
+      
       const user = await privateData()
       dispatch({ type: actions.LOG_IN, payload: user })
+      
       loginErr = null
-    } catch (error) {
-      const err = axiosError(error)
+    } catch (err1) {
+      const err = axiosError(err1)
       setError(err.error)
-      loginErr = err.error
     }
+    loginErr=error
     return loginErr
   }
-  return { login, error }
+  return { login }
 }
