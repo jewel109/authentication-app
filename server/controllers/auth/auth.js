@@ -72,10 +72,10 @@ const login = async (req, res, next) => {
       throw Error("make sure password lenght is not less than 4")
     }
     if (!user) {
-      return res.status(401).json({ message: 'No user found  ', success: false })
+      throw Error('No user found')
 
     } else if (!comparePassword(password, user.password)) {
-      return res.status(401).json({ message: "User password doesn't match", success: false })
+      throw Error("User password doesn't match"  )
     }
 
     return sendToken(user, 201, res, "logged in successfully")
