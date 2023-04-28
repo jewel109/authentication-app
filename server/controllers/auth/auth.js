@@ -4,6 +4,7 @@ const { sendToken } = require("../../helpers/auth/tokenHelper");
 const { comparePassword } = require("../../helpers/inputHelper");
 const CustomError = require("../../middlewares/Error/CustomError");
 const sendMailWithSIB = require("../../helpers/libraries/sendMailWithSIB.js");
+const sendMail = require("../../helpers/libraries/sendMail");
 
 const getPrivateData = async (req, res, next) => {
   try {
@@ -105,17 +106,22 @@ const forgetPassword = async (req, res, next) => {
     const requestPasswordURI =
       `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`;
 
-    const emailTemplate = `
+    const emailTemplate ={ 
+      from:process.env.MAIL_USERNAME,
+      to:resetEmail,
+      subject:"Test",
+      html:`
   <h3 style="color: red" > Reset your password </h3>
   <p>This <a href=${requestPasswordURI} target="_blank">link </a>will expire in 1 hours</P>
-`;
-    await sendMailWithSIB(resetEmail, emailTemplate);
+`} 
+    await sendMail(emailTemplate);
 
     return res.status(200).json({
       success: true,
       message: "Email send",
     });
   } catch (error) {
+    console.log(error)
     console.log(`Server Error = ${error}`);
     res.status(500).json({
       message: "Server error",
