@@ -3,12 +3,15 @@ const nodemailer = require('nodemailer')
 const sendMail = async (mailOptions) => {
 
   const transporter = nodemailer.createTransport({
-    name:"http://localhost:5000",
-    host: 'smtp.ethereal.email',
-    port: 587,
+    service:"gmail",
     auth: {
-      user: 'brayan.kilback@ethereal.email',
-      pass: 'zmVk5SbXjVfQg3NmJE'
+      type:'OAuth2',
+      user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+        clientId: process.env.OAUTH_CLIENTID,
+        clientSecret: process.env.OAUTH_CLIENT_SECRET,
+        refreshToken: process.env.OAUTH_REFRESH_TOKEN
+
     }
   });
 
@@ -16,5 +19,15 @@ const sendMail = async (mailOptions) => {
 
   console.log(` message send : ${info}`)
 }
-
+// let transporter = nodemailer.createTransport({
+//       service: 'gmail',
+//       auth: {
+//         type: 'OAuth2',
+//         user: process.env.MAIL_USERNAME,
+//         pass: process.env.MAIL_PASSWORD,
+//         clientId: process.env.OAUTH_CLIENTID,
+//         clientSecret: process.env.OAUTH_CLIENT_SECRET,
+//         refreshToken: process.env.OAUTH_REFRESH_TOKEN
+//       }
+//     });
 module.exports = sendMail

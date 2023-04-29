@@ -8,6 +8,7 @@ import Profile from './pages/profile/profile';
 import Logout from './pages/logout/logout';
 import { Container } from '@chakra-ui/react';
 import ForgetPassword from './pages/forgetPassword/forgetPassword';
+import ResetPassword from './pages/resetPassword/resetPassword'
 function App() {
   return (
     <div className="app">
@@ -22,6 +23,7 @@ function App() {
         <Route path='/profile' element={<Profile />} />
         <Route path='/logout' element={<Logout />} />
         <Route path='/forgetPassword' element={<ForgetPassword/>} />
+        <Route path='/resetpassword' element={<ResetPassword/>} />
       </Routes>
       </Container>
     </div >
