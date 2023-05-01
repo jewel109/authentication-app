@@ -8,10 +8,16 @@ const logger = require('./helpers/logger/logger')
 
 //logger('we are in ', 'index.js')
 
+
 dotenv.config({
   path: ".config/config.env"
 })
 
+const {NODE_ENV} = process.env
+
+ // if(NODE_ENV === "production"){
+ //   console.log = () => {}
+ // }
 
 db()
 app.use(express.json())
@@ -29,7 +35,10 @@ app.use(cors({
 // })
 //
 
+console.log(NODE_ENV)
 app.use('/', indexRoute)
+
+
 //main route
 
 app.use((err, req, res, next) => {
