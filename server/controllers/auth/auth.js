@@ -104,7 +104,7 @@ const forgetPassword = async (req, res, next) => {
     await user.save();
 
     const requestPasswordURI =
-      `${URI_CLIENT}/resetpassword?resetPasswordToken=${resetPasswordToken}`;
+      `${URI_CLIENT}resetpassword?resetPasswordToken=${resetPasswordToken}`;
 
     const emailTemplate ={ 
       from:process.env.MAIL_USERNAME,
